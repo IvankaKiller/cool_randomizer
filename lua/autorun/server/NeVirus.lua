@@ -21,8 +21,8 @@ function ApplyRandomEffect(ply)
 					timer.Remove("FOVLock_" .. p:SteamID())
 					return 
 				end
-				if p:GetFOV() > 10 then  -- если игрок пытается исправить
-					p:SetFOV(10, 0.2)    -- возвращаем близорукость мгновенно
+				if p:GetFOV() > 10 then
+					p:SetFOV(10, 0.2)
 				end
 			end)
 			
