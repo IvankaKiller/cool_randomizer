@@ -1,5 +1,18 @@
 math.randomseed(os.time())
 
+local scarySounds = {
+    "npc/zombie/zombie_pain1.wav",
+    "npc/zombie/zombie_pain2.wav", 
+    "npc/zombie/zombie_pain3.wav",
+    "npc/fast_zombie/scare.wav",
+    "npc/headcrab/headcrab_alert1.wav",
+    "ambient/creatures/town_scary1.wav",
+    "ambient/creatures/town_scary2.wav",
+    "ambient/creatures/town_scary3.wav",
+    "ambient/levels/canals/headcrab_canister_open1.wav",
+    "ambient/alarms/citadel_alert_loop2.wav"
+}
+
 hook.Add("PlayerInitialSpawn", "IgrokZashel", function(ply)
     local playerName = ply:Name()
     ply:ChatPrint("Привет, " .. playerName)
@@ -34,14 +47,25 @@ function ApplyRandomEffect(ply)
 			end)
 		end},
 		{name = "SCARY SOUND", func = function(p)
-			p:EmitSound("npc/zombie/zombie_pain1.wav")
+			local randomSound = scarySounds[math.random(1, #scarySounds)]
+			p:EmitSound(randomSound)
 		end},
 		{name = "ORDA ZOMBIES", func = function(p)
 			local pos = p:GetPos()
-			local zombie = ents.Create("npc_zombie")
-			if IsValid(zombie) then
-				zombie:SetPos(pos + Vector(100, 0, 0))
-				zombie:Spawn()
+			local zombies = {"npc_zombie", "npc_fastzombie", "npc_poisonzombie", "npc_headcrab", "npc_fastheadcrab"}
+			local zcount = math.random(4, 16)
+			for i = 1, zcount do
+				local zombieType = zombies[math.random(1, #zombies)]
+				local zombies = ents.Create(zombieType)
+				if IsValid(zombie) then
+					local angle = (i / zcount) math.pi * 2
+					local dist = math.random(200,500)
+					local x = math.cos(angle) * math.random(150,300)
+					local y = math.sin(angle) * math.random(150,300)
+					zombie:SetPos(pos + Vector(x,y,0))
+					zombie:spawn()
+					
+				end
 			end
 		end}
 	}
