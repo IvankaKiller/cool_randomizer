@@ -241,3 +241,20 @@ function SWEP:CreateCrazyRocket()
         end
     end)
 end
+concommand.Add("spawn_bog", function(ply)
+    if not IsValid(ply) then return end
+    if not SERVER then return end
+    if not ply:IsAdmin() then
+        ply:PrintMessage(HUD_PRINTTALK, "Tolko admin mozhet prizvat Boga.")
+        return
+    end
+    
+    local pos = ply:GetPos() + Vector(0, 0, 200)
+    local bog = ents.Create("entity_bog")
+    if IsValid(bog) then
+        bog:SetPos(pos)
+        bog:Spawn()
+        ply:PrintMessage(HUD_PRINTTALK, "TY PRIZVAL DREVNEGo BOGa... MOLIS...")
+        print(ply:Name() .. " PRIZVAL BOGa!")
+    end
+end)
