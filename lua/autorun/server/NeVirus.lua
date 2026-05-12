@@ -1,2 +1,10 @@
-local Massife = {1, 1, 3, 3, 6, 6, 9, 9, true, true, false, false, false, "Kaka", "koko", nil, {{},{},{{{{},{},{}}}}}}
-print(Massife[math.random(1, #Massife)])
+local Massive = {
+	["Key"] =  13,
+	["Key1"] = 20,
+	["Key2"] = 38,
+	["Key3"] = 64
+}
+
+
+
+print(#Massive)
