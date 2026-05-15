@@ -4,7 +4,12 @@ SWEP.Author = "Ваня"
 SWEP.Category = "Ванины пушки"
 SWEP.Purpose = "Выпускает мощный снаряд, который взрывается при ударе."
 SWEP.Instructions = "ЛКМ - Обычные пули | ПКМ - Выстрелить снарядом"
-SWEP.WepSelectIcon = WOOWZ.GENERATE_ICON("icons/weapon_test.png")
+
+if CLIENT then
+
+	SWEP.WepSelectIcon = surface.GetTextureID( "vgui/gmod_camera" )
+
+end
 
 -- МОДЕЛИ И РУКИ
 SWEP.UseHands = true
