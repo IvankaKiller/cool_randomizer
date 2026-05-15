@@ -1,4 +1,4 @@
-include("FOR_WOOWZ.lua")
+include("for_woowz.lua")
 
 -- ОФОРМЛЕНИЕ
 SWEP.PrintName = "Ручной Противопехотный Гранатомет"
