@@ -6,7 +6,9 @@ WOOWZ = {}
 		{"ABSOLUTE", "cool_randomizer/png/absolute.png"},
 		{"Vaniny pushki", "cool_randomizer/png/1.png"},
 		{"Ванины пушки", "cool_randomizer/png/2.png"},
-		{"Entities", "cool_randomizer/png/ent.png"}
+		{"Entities", "cool_randomizer/png/ent.png"},
+		{"Пчелиное Царство", "cool_randomizer/png/bee.png"},
+		{"Гравитационные Искажения", "cool_randomizer/png/gravi.png"}
 	}
 
 	if CLIENT then
