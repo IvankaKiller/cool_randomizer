@@ -1,6 +1,6 @@
-local WOOWZ = {}
+local __WOOWZ = {}
 
-function LIB.GENERATE_ICON(PNGPath)
+function __WOOWZ.GENERATE_ICON(PNGPath)
 	local MATERIAL = Material(PNGPath)
 	MATERIAL:SetInt("$ignorez",     1)
 	MATERIAL:SetInt("$vertexcolor", 1)
@@ -9,4 +9,4 @@ function LIB.GENERATE_ICON(PNGPath)
 	return MATERIAL
 end
 
-return WOOWZ
+WOOWZ = __WOOWZ
