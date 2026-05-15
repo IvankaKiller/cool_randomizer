@@ -1,6 +1,3 @@
-AddCSLuaFile()
-include("for_woowz/for_woowz.lua")
-
 -- ОФОРМЛЕНИЕ
 SWEP.PrintName = "Ручной Противопехотный Гранатомет"
 SWEP.Author = "Ваня"
