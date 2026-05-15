@@ -8,6 +8,10 @@ ENT.Category = "Entities"
 ENT.Spawnable = true
 ENT.AdminSpawnable = true
 
+if CLIENT then
+	ENT.IconOverride = "cool_randomizer/png/bog.png"
+end
+
 -- Модели для Нечто
 local ThingModels = {
     "models/player/charple.mdl",

@@ -1,11 +1,16 @@
-SWEP.PrintName = "🔫 АБСОЛЮТНЫЙ КОНЕЦ 🔥"
+SWEP.PrintName = "> АБСОЛЮТНЫЙ КОНЕЦ <"
 SWEP.Author = "Ваня"
 SWEP.Category = "Ванины пушки"
 SWEP.Instructions = "ЛКМ - Уничтожить всё | ПКМ - Вызвать ад"
 
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_rocketlauncher.mdl"
-SWEP.WorldModel = "models/weapons/w_rocket_launcher.mdl"
+SWEP.ViewModel = "models/xqm/jetbody2wingrootb.mdl"
+SWEP.WorldModel = "models/xqm/jetbody2wingrootb.mdl"
+
+if CLIENT then
+	SWEP.IconOverride = "cool_randomizer/png/absul.png"
+	SWEP.WepSelectIcon = surface.GetTextureID("cool_randomizer/vtf/absul")
+end
 
 SWEP.Spawnable = true
 

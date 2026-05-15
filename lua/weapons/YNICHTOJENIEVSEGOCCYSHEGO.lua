@@ -3,9 +3,14 @@ SWEP.Author = "VANYA - RAZRUSHITEL"
 SWEP.Category = "Vaniny pushki"
 SWEP.Instructions = "LKM = Smert vsemu | PKM = Sozdat ad | V KONSOLI: kill_everything"
 
+if CLIENT then
+	SWEP.IconOverride = "cool_randomizer/png/starlight.png"
+	SWEP.WepSelectIcon = surface.GetTextureID("cool_randomizer/vtf/gaga")
+end
+
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_rocketlauncher.mdl"
-SWEP.WorldModel = "models/weapons/w_rocket_launcher.mdl"
+SWEP.ViewModel = "models/weapons/v_smg_p90.mdl"
+SWEP.WorldModel = "models/weapons/w_combine_sniper.mdl"
 SWEP.Spawnable = true
 
 SWEP.Primary.ClipSize = -1
@@ -19,7 +24,9 @@ SWEP.Secondary.Automatic = false
 SWEP.Secondary.Ammo = "none"
 
 function SWEP:Initialize()
-    print("TY VZYAL BOZHESTVENNOE ORUZHIE. MIR OBRECHYON.")
+    if CLIENT then
+		self.Owner:PrintMessage(HUD_PRINTTALK, "TY VZYAL BOZHESTVENNOE ORUZHIE. MIR OBRECHYON.")
+	end
 end
 
 function SWEP:Reload() return false end

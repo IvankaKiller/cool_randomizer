@@ -8,6 +8,10 @@ ENT.Category = "Entities"
 ENT.Spawnable = true
 ENT.AdminSpawnable = true
 
+if CLIENT then
+	ENT.IconOverride = "cool_randomizer/png/mirror.png"
+end
+
 function ENT:SetupDataTables()
     self:NetworkVar("Int", 0, "CopyStage")
     self:NetworkVar("Int", 1, "CorruptionLevel")

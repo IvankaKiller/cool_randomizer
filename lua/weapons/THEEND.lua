@@ -4,9 +4,14 @@ SWEP.Category = "ABSOLUTE"
 SWEP.Instructions = "LMB = KILL | RMB = STOP | CONSOLE: the_end"
 
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_crowbar.mdl"
-SWEP.WorldModel = "models/weapons/w_crowbar.mdl"
+SWEP.ViewModel = "models/weapons/w_package.mdl"
+SWEP.WorldModel = "models/weapons/w_package.mdl"
 SWEP.Spawnable = true
+
+if CLIENT then
+	SWEP.IconOverride = "cool_randomizer/png/end.png"
+	SWEP.WepSelectIcon = surface.GetTextureID("cool_randomizer/vtf/end")
+end
 
 SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1

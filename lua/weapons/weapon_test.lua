@@ -4,12 +4,16 @@ SWEP.Author = "Ваня"
 SWEP.Category = "Ванины пушки"
 SWEP.Purpose = "Выпускает мощный снаряд, который взрывается при ударе."
 SWEP.Instructions = "ЛКМ - Обычные пули | ПКМ - Выстрелить снарядом"
-SWEP.IconOverride = "png/rpg.png"
+
+if CLIENT then
+	SWEP.IconOverride = "cool_randomizer/png/rpg.png"
+	SWEP.WepSelectIcon = surface.GetTextureID("cool_randomizer/vtf/rpg")
+end
 
 -- МОДЕЛИ И РУКИ
 SWEP.UseHands = true
-SWEP.ViewModel = "models/props_c17/doll01.mdl"   -- Вид из рук
-SWEP.WorldModel = "models/props_c17/doll01.mdl" -- Вид на земле/у других
+SWEP.ViewModel = "models/weapons/cstrike/c_c4.mdl"   -- Вид из рук
+SWEP.WorldModel = "models/weapons/w_c4_planted.mdl" -- Вид на земле/у других
 SWEP.ViewModelFOV = 65
 
 -- ВИДИМОСТЬ В МЕНЮ (Q)

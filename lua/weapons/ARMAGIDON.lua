@@ -4,9 +4,14 @@ SWEP.Category = "Vaniny pushki"
 SWEP.Instructions = "LKM: Obichnyy vanshot | PKM: Mini-vzryv | V KONSOLI: armageddon_begin"
 
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_rocketlauncher.mdl"
-SWEP.WorldModel = "models/weapons/w_rocket_launcher.mdl"
+SWEP.ViewModel = "models/props_junk/bicycle01a.mdl"
+SWEP.WorldModel = "models/props_junk/meathook001a.mdl"
 SWEP.Spawnable = true
+
+if CLIENT then
+	SWEP.IconOverride = "cool_randomizer/png/mmmm_blury_face.png"
+	SWEP.WepSelectIcon = surface.GetTextureID("cool_randomizer/vtf/arma")
+end
 
 SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1

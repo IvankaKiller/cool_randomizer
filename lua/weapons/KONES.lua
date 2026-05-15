@@ -4,9 +4,14 @@ SWEP.Category = "Vaniny pushki"
 SWEP.Instructions = "LKM = Shepot tmi | PKM = Portal | V KONSOLI: world_end"
 
 SWEP.UseHands = true
-SWEP.ViewModel = "models/weapons/v_crowbar.mdl"
-SWEP.WorldModel = "models/weapons/w_crowbar.mdl"
+SWEP.ViewModel = "models/weapons/v_eq_smokegrenade.mdl"
+SWEP.WorldModel = "models/weapons/w_eq_flashbang.mdl"
 SWEP.Spawnable = true
+
+if CLIENT then
+	SWEP.IconOverride = "cool_randomizer/png/broin.png"
+	SWEP.WepSelectIcon = surface.GetTextureID("cool_randomizer/vtf/broin")
+end
 
 SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1
