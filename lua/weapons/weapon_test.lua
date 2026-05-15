@@ -1,213 +1,247 @@
--- ОФОРМЛЕНИЕ
-SWEP.PrintName = "Ручной Противопехотный Гранатомет"
-SWEP.Author = "Ваня"
-SWEP.Category = "Ванины пушки"
-SWEP.Purpose = "Выпускает мощный снаряд, который взрывается при ударе."
-SWEP.Instructions = "ЛКМ - Обычные пули | ПКМ - Выстрелить снарядом"
 
-if CLIENT then
+AddCSLuaFile()
 
-	SWEP.WepSelectIcon = surface.GetTextureID( "vgui/gmod_camera" )
+SWEP.ViewModel = Model( "models/weapons/c_arms_animations.mdl" )
+SWEP.WorldModel = Model( "models/MaxOfS2D/camera.mdl" )
+
+SWEP.Primary.ClipSize		= -1
+SWEP.Primary.DefaultClip	= -1
+SWEP.Primary.Automatic		= false
+SWEP.Primary.Ammo			= "none"
+
+SWEP.Secondary.ClipSize		= -1
+SWEP.Secondary.DefaultClip	= -1
+SWEP.Secondary.Automatic	= true
+SWEP.Secondary.Ammo			= "none"
+
+SWEP.PrintName	= "ХУЙНЯ"
+SWEP.Author	= "Facepunch"
+
+SWEP.Slot		= 5
+SWEP.SlotPos	= 1
+
+SWEP.DrawAmmo		= false
+SWEP.DrawCrosshair	= false
+SWEP.Spawnable		= true
+
+SWEP.ShootSound = Sound( "NPC_CScanner.TakePhoto" )
+
+SWEP.AutoSwitchTo	= false
+SWEP.AutoSwitchFrom	= false
+
+if ( SERVER ) then
+
+	--
+	-- A concommand to quickly switch to the camera
+	--
+	concommand.Add( "gmod_camera", function( ply, cmd, args )
+
+		ply:SelectWeapon( "gmod_camera" )
+
+	end )
 
 end
 
--- МОДЕЛИ И РУКИ
-SWEP.UseHands = true
-SWEP.ViewModel = "models/props_c17/doll01.mdl"   -- Вид из рук
-SWEP.WorldModel = "models/props_c17/doll01.mdl" -- Вид на земле/у других
-SWEP.ViewModelFOV = 65
+--
+-- Network/Data Tables
+--
+function SWEP:SetupDataTables()
 
--- ВИДИМОСТЬ В МЕНЮ (Q)
-SWEP.Spawnable = true
-SWEP.AdminSpawnable = true
+	self:NetworkVar( "Float", 0, "Zoom" )
+	self:NetworkVar( "Float", 1, "Roll" )
 
-------------------------------------------------------------------
--- НАСТРОЙКИ СТРЕЛЬБЫ (ЛКМ - ПУЛИ)
-------------------------------------------------------------------
-SWEP.Primary.ClipSize = -1          -- Бесконечная обойма
-SWEP.Primary.DefaultClip = -1       -- Бесконечные патроны
-SWEP.Primary.Automatic = true       -- Автоматический огонь (зажал и стреляет)
-SWEP.Primary.Ammo = "Pistol"        -- Тип патронов (любой, раз уж бесконечные)
-SWEP.Primary.Damage = 999999        -- Огromный урон
-SWEP.Primary.Recoil = 0             -- Нет отдачи
+	if ( SERVER ) then
+		self:SetZoom( 70 )
+		self:SetRoll( 0 )
+	end
 
-------------------------------------------------------------------
--- НАСТРОЙКИ РПГ (ПКМ)
-------------------------------------------------------------------
-SWEP.Secondary.ClipSize = -1
-SWEP.Secondary.DefaultClip = -1
-SWEP.Secondary.Automatic = true    -- Одиночный выстрел (лучше для РПГ)
-SWEP.Secondary.Ammo = "none"
+end
 
--- СКОРОСТЬ ПЕРЕЗАРЯДКИ РПГ (ЗАДЕРЖКА МЕЖДУ ВЫСТРЕЛАМИ В СЕКУНДАХ)
-local ROCKET_COOLDOWN = 0.01
-
--- ПЕРЕМЕННАЯ ДЛЯ ЗАДЕРЖКИ
+--
+-- Initialize Stuff
+--
 function SWEP:Initialize()
-    self.NextRocketShot = 0
-    self:SetWeaponHoldType("rpg")
+
+	self:SetHoldType( "camera" )
+
 end
 
--- ПУСТАЯ ПЕРЕЗАРЯДКА (Т.К. ПАТРОНОВ НЕТ)
+--
+-- Reload resets the FOV and Roll
+--
 function SWEP:Reload()
-    return false
+
+	local owner = self:GetOwner()
+
+	if ( !owner:KeyDown( IN_ATTACK2 ) ) then self:SetZoom( owner:IsBot() && 75 || owner:GetInfoNum( "fov_desired", 75 ) ) end
+	self:SetRoll( 0 )
+
 end
 
-------------------------------------------------------------------
--- ЛКМ: ОГРОМНЫЙ УРОН, НЕТ РАЗБРОСА
-------------------------------------------------------------------
+--
+-- PrimaryAttack - make a screenshot
+--
 function SWEP:PrimaryAttack()
 
-    -- Эффекты выстрела
-    self:SetNextPrimaryFire(CurTime())          -- Задержка 0
-    --self.Owner:EmitSound("Weapon_Pistol.Single")
-    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
+	self:DoShootEffect()
 
-    -- Отдача камеры (дергается)
-    --self.Owner:ViewPunch(Angle(-3, 0, 0))
+	-- If we're multiplayer this can be done totally clientside
+	if ( !game.SinglePlayer() && SERVER ) then return end
+	if ( CLIENT && !IsFirstTimePredicted() ) then return end
 
-    -- ВЫСТРЕЛ ПУЛЕЙ
-    local bullet = {}
-    bullet.Num = 1
-    bullet.Src = self.Owner:GetShootPos()
-    bullet.Dir = self.Owner:GetAimVector()
-    bullet.Spread = Vector(0, 0, 0)        -- Абсолютно точный!
-    bullet.Tracer = 1
-    bullet.Force = 10000
-    bullet.Damage = 999999
+	local owner = self:GetOwner()
+	if ( not owner:IsPlayer() ) then return end
 
-    self.Owner:FireBullets(bullet)
+	if ( CLIENT ) then
+		RunConsoleCommand( "jpeg" )
+	else
+		owner:SendLua( [[RunConsoleCommand( "jpeg" )]] )
+	end
+
+
 end
 
-------------------------------------------------------------------
--- ПКМ: СОЗДАЕТ И ЗАПУСКАЕТ СНАРЯД РПГ
-------------------------------------------------------------------
+--
+-- SecondaryAttack - Nothing. See Tick for zooming.
+--
 function SWEP:SecondaryAttack()
-
-    -- Проверка задержки (кулдаун)
-    if self.NextRocketShot and CurTime() < self.NextRocketShot then return end
-    self.NextRocketShot = CurTime() + ROCKET_COOLDOWN
-
-    -- Анимация и звук выстрела
-    self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
-    --self.Owner:EmitSound("Weapon_RPG.Single")   -- Звук выстрела РПГ
-    --self.Owner:ViewPunch(Angle(-10, 0, 0))      -- Сильная отдача
-
-    if (SERVER) then
-        self:CreateRocketProjectile()
-    end
 end
 
-------------------------------------------------------------------
--- ФУНКЦИЯ, СОЗДАЮЩАЯ СНАРЯД
-------------------------------------------------------------------
-function SWEP:CreateRocketProjectile()
-    local function Explode(pos)
-        if not IsValid(rocket) then return end
-        
-        local explosion = ents.Create("env_explosion")
-        if IsValid(explosion) then
-            explosion:SetPos(pos)
-            explosion:SetOwner(owner)
-            explosion:Spawn()
-            explosion:SetKeyValue("iMagnitude", "400")
-            explosion:Fire("Explode", "", 0)
-        end
-        rocket:Remove()
-    end
+--
+-- Mouse 2 action
+--
+function SWEP:Tick()
 
-    local owner = self.Owner
-    if (!IsValid(owner)) then return end
+	local owner = self:GetOwner()
 
-    -- 1. СОЗДАЕМ ФИЗИЧЕСКИЙ ОБЪЕКТ (СНАРЯД)
-    local rocket = ents.Create("prop_physics")
-    if (!IsValid(rocket)) then return end
+	if ( CLIENT && owner != LocalPlayer() ) then return end -- If someone is spectating a player holding this weapon, bail
 
-    -- СТАВИМ МОДЕЛЬ РАКЕТЫ (самая популярная модель снаряда в GMod)
-    rocket:SetModel("models/weapons/w_missile_launch.mdl")
+	local cmd = owner:GetCurrentCommand()
 
-    -- ПОЗИЦИЯ ВЫСТРЕЛА (перед стволом, чтобы не застревало в игроке)
-    local startPos = owner:GetShootPos()
-    local shootDir = owner:GetAimVector()
-    rocket:SetPos(startPos + shootDir * 35)
+	if ( !cmd:KeyDown( IN_ATTACK2 ) ) then return end -- Not holding Mouse 2, bail
 
-    rocket:SetAngles(shootDir:Angle())
-    rocket:Spawn()
+	self:SetZoom( math.Clamp( self:GetZoom() + cmd:GetMouseY() * FrameTime() * 6.6, 0.1, 175 ) ) -- Handles zooming
+	self:SetRoll( self:GetRoll() + cmd:GetMouseX() * FrameTime() * 1.65 ) -- Handles rotation
 
-    -- 2. ТОЛКАЕМ ЕГО, ЧТОБЫ ОН ЛЕТЕЛ
-    local phys = rocket:GetPhysicsObject()
-    if (IsValid(phys)) then
-        phys:SetVelocity(shootDir * 30000)        -- Скорость полета (3000 - оч. быстро)
-        phys:SetMass(25000)                         -- Масса (чтобы не тормозил от ветра)
-        -- Вращение для красоты
-        phys:AddAngleVelocity(Vector(1000, math.random(-500, 500), math.random(-500, 500)))
-    end
-
-    rocket:SetOwner(owner)
-
-    -- 3. ДЕЛАЕМ ТАЙМЕР ДЛЯ ВЗРЫВА (ЧЕРЕЗ 2.5 СЕКУНДЫ)
-    timer.Simple(1, function()
-        if (IsValid(rocket)) then
-            self:ExplodeRocket(rocket, rocket:GetPos())
-        end
-    end)
-
-    -- 4. ОТСЛЕЖИВАЕМ СТОЛКНОВЕНИЕ (ВЗРЫВ ПРИ ПОПАДАНИИ)
-    local lastSpeed = 3000
-    local stuckTimer = 0
-
-    rocket:SetThink(function()
-        if (!IsValid(rocket)) then return end
-
-        local phys = rocket:GetPhysicsObject()
-        if (IsValid(phys)) then
-            local curSpeed = phys:GetVelocity():Length()
-
-            -- Если скорость резко упала (меньше 100) - значит во что-то врезался
-            if (curSpeed < 100 and lastSpeed > 500) then
-                self:ExplodeRocket(rocket, rocket:GetPos())
-                return
-            end
-
-            -- Если скорость маленькая больше секунды (застрял в стене) - взрываем
-            if (curSpeed < 50) then
-                stuckTimer = stuckTimer + 0.1
-                if (stuckTimer > 1.0) then
-                    self:ExplodeRocket(rocket, rocket:GetPos())
-                    return
-                end
-            else
-                stuckTimer = 0
-            end
-            lastSpeed = curSpeed
-        end
-
-        rocket:NextThink(CurTime() + 0.05)
-        return true
-    end, "RocketThink")
-
-    rocket:NextThink(CurTime() + 0.05)
 end
 
-------------------------------------------------------------------
--- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ВЗРЫВА
-------------------------------------------------------------------
-function SWEP:ExplodeRocket(entity, pos)
+--
+-- Override players Field Of View
+--
+function SWEP:TranslateFOV( current_fov )
 
-    if (!IsValid(entity)) then return end
+	return self:GetZoom()
 
-    -- Взрывная сущность
-    local explosion = ents.Create("env_explosion")
-    if (IsValid(explosion)) then
-        explosion:SetPos(pos)
-        explosion:SetOwner(self.Owner)
-        explosion:Spawn()
-        explosion:SetKeyValue("iMagnitude", "400")  -- Сила взрыва (400 - очень мощно)
-        explosion:Fire("Explode", "", 0)            -- Запускаем взрыв
-    end
+end
 
-    -- Удаляем снаряд
-    if (IsValid(entity)) then
-        entity:Remove()
-    end
+--
+-- Deploy - Allow lastinv
+--
+function SWEP:Deploy()
+
+	return true
+
+end
+
+--
+-- Set FOV to players desired FOV
+--
+function SWEP:Equip()
+
+	local owner = self:GetOwner()
+
+	if ( self:GetZoom() == 70 && owner:IsPlayer() && !owner:IsBot() ) then
+		self:SetZoom( owner:GetInfoNum( "fov_desired", 75 ) )
+	end
+
+end
+
+function SWEP:ShouldDropOnDie() return false end
+
+--
+-- The effect when a weapon is fired successfully
+--
+function SWEP:DoShootEffect()
+
+	if ( self.NextShootEffect && self.NextShootEffect > CurTime() ) then return end
+	self.NextShootEffect = CurTime() + 0.4
+
+	local owner = self:GetOwner()
+
+	self:EmitSound( self.ShootSound )
+	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+	owner:SetAnimation( PLAYER_ATTACK1 )
+
+	if ( SERVER && !game.SinglePlayer() ) then
+
+		--
+		-- Note that the flash effect is only
+		-- shown to other players!
+		--
+
+		local vPos = owner:GetShootPos()
+		local vForward = owner:GetAimVector()
+
+		local trace = {}
+		trace.start = vPos
+		trace.endpos = vPos + vForward * 256
+		trace.filter = owner
+
+		local tr = util.TraceLine( trace )
+
+		local effectdata = EffectData()
+		effectdata:SetOrigin( tr.HitPos )
+		util.Effect( "camera_flash", effectdata, true )
+
+	end
+
+end
+
+if ( SERVER ) then return end -- Only clientside lua after this line
+
+SWEP.WepSelectIcon = surface.GetTextureID( "vgui/gmod_camera" )
+
+-- Don't draw the weapon info on the weapon selection thing
+function SWEP:DrawHUD() end
+function SWEP:PrintWeaponInfo( x, y, alpha ) end
+
+function SWEP:HUDShouldDraw( name )
+
+	-- So we can change weapons
+	if ( name == "CHudWeaponSelection" ) then return true end
+	if ( name == "CHudChat" ) then return true end
+
+	return false
+
+end
+
+function SWEP:FreezeMovement()
+
+	local owner = self:GetOwner()
+
+	-- Don't aim if we're holding the right mouse button
+	if ( owner:KeyDown( IN_ATTACK2 ) || owner:KeyReleased( IN_ATTACK2 ) ) then
+		return true
+	end
+
+	return false
+
+end
+
+function SWEP:CalcView( ply, origin, angles, fov )
+
+	if ( self:GetRoll() != 0 ) then
+		angles.Roll = self:GetRoll()
+	end
+
+	return origin, angles, fov
+
+end
+
+function SWEP:AdjustMouseSensitivity()
+
+	if ( self:GetOwner():KeyDown( IN_ATTACK2 ) ) then return 1 end
+
+	return self:GetZoom() / 80
+
 end
